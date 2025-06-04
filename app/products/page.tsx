@@ -4,8 +4,37 @@ import { SearchBar } from "@/components/search-bar"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SlidersHorizontal } from "lucide-react"
+import { getProducts } from "@/app/actions/products"
 
-export default function ProductsPage() {
+interface ProductsPageProps {
+  searchParams: {
+    category?: string
+    sort?: "newest" | "ending" | "price_asc" | "price_desc" | "bids"
+    condition?: string[]
+    min_price?: string
+    max_price?: string
+    format?: "auction" | "buy_now" | "all"
+    page?: string
+  }
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const { category, sort = "newest", condition, min_price, max_price, format, page = "1" } = searchParams
+
+  const minPrice = min_price ? Number.parseFloat(min_price) : undefined
+  const maxPrice = max_price ? Number.parseFloat(max_price) : undefined
+  const currentPage = Number.parseInt(page)
+
+  const { products, count } = await getProducts({
+    category,
+    sort,
+    condition,
+    minPrice,
+    maxPrice,
+    format,
+    page: currentPage,
+  })
+
   return (
     <div className="container px-4 py-8 md:px-6 md:py-12">
       <div className="mb-8 flex flex-col gap-4">
@@ -21,7 +50,9 @@ export default function ProductsPage() {
         </div>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Showing 1-24 of 256 products</p>
+            <p className="text-sm text-gray-500">
+              Showing {products.length} of {count} products
+            </p>
             <Button variant="outline" size="sm" className="md:hidden">
               <SlidersHorizontal className="mr-2 h-4 w-4" />
               Filters
@@ -37,7 +68,7 @@ export default function ProductsPage() {
             </div>
           </div>
           <Separator />
-          <ProductGrid />
+          <ProductGrid products={products} />
         </div>
       </div>
     </div>

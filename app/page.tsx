@@ -4,8 +4,22 @@ import { CategoryNav } from "@/components/category-nav"
 import { FeaturedAuctions } from "@/components/featured-auctions"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Clock, TrendingUp } from "lucide-react"
+import { getProducts } from "@/app/actions/products"
 
-export default function Home() {
+export default async function Home() {
+  // Get featured products for the home page
+  const { products: featuredProducts } = await getProducts({
+    limit: 8,
+    sort: "newest",
+  })
+
+  // Get auction products ending soon
+  const { products: auctionProducts } = await getProducts({
+    limit: 4,
+    sort: "ending",
+    format: "auction",
+  })
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
@@ -101,7 +115,7 @@ export default function Home() {
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            <FeaturedAuctions />
+            <FeaturedAuctions auctions={auctionProducts} />
           </div>
         </section>
 
@@ -118,7 +132,9 @@ export default function Home() {
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            <ProductGrid />
+            <div className="mt-6">
+              <ProductGrid products={featuredProducts} />
+            </div>
           </div>
         </section>
       </main>

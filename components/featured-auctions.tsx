@@ -4,7 +4,24 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export function FeaturedAuctions() {
+interface Auction {
+  id: string
+  title: string
+  current_price: number
+  end_date: string
+  images: Array<{ url: string }>
+}
+
+interface FeaturedAuctionsProps {
+  auctions?: Auction[]
+}
+
+export function FeaturedAuctions({ auctions = [] }: FeaturedAuctionsProps) {
+  if (!auctions || auctions.length === 0) {
+    // Fallback to mock data if no auctions are provided
+    auctions = mockAuctions
+  }
+
   return (
     <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {auctions.map((auction) => (
@@ -17,7 +34,7 @@ export function FeaturedAuctions() {
           </Link>
           <div className="relative aspect-square overflow-hidden">
             <Image
-              src={auction.image || "/placeholder.svg"}
+              src={auction.images?.[0]?.url || "/placeholder.svg?height=300&width=300"}
               alt={auction.title}
               fill
               className="object-cover transition-transform group-hover:scale-105"
@@ -33,7 +50,7 @@ export function FeaturedAuctions() {
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
               <div className="flex items-center gap-1 rounded-full bg-black/40 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 <Clock className="h-3 w-3" />
-                <span>{auction.timeLeft}</span>
+                <span>{getTimeLeft(auction.end_date)}</span>
               </div>
             </div>
           </div>
@@ -41,10 +58,10 @@ export function FeaturedAuctions() {
             <h3 className="line-clamp-2 text-base font-medium">{auction.title}</h3>
             <div className="mt-2 flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold">${auction.price.toFixed(2)}</p>
-                <p className="text-xs text-gray-500">{auction.bids} bids</p>
+                <p className="text-lg font-bold">${auction.current_price.toFixed(2)}</p>
+                <p className="text-xs text-gray-500">Current bid</p>
               </div>
-              {auction.isHot && <Badge className="bg-rose-600">Hot</Badge>}
+              <Badge className="bg-rose-600">Hot</Badge>
             </div>
           </div>
         </div>
@@ -53,41 +70,48 @@ export function FeaturedAuctions() {
   )
 }
 
-const auctions = [
+function getTimeLeft(endDate: string): string {
+  const now = new Date()
+  const end = new Date(endDate)
+  const diff = end.getTime() - now.getTime()
+
+  if (diff <= 0) return "Ended"
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+
+  if (days > 0) return `${days}d ${hours}h`
+  return `${hours}h`
+}
+
+// Mock data for when no auctions are provided
+const mockAuctions = [
   {
     id: "1",
     title: "Vintage Polaroid SX-70 Land Camera",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 120.5,
-    bids: 23,
-    timeLeft: "2d 4h",
-    isHot: true,
+    current_price: 120.5,
+    end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    images: [{ url: "/placeholder.svg?height=300&width=300" }],
   },
   {
     id: "3",
     title: "Vintage Leather Messenger Bag - Handcrafted Brown Satchel",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 89.0,
-    bids: 12,
-    timeLeft: "1d 6h",
-    isHot: false,
+    current_price: 89.0,
+    end_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000).toISOString(),
+    images: [{ url: "/placeholder.svg?height=300&width=300" }],
   },
   {
     id: "5",
     title: "Antique Bronze Pocket Watch with Chain - Working Condition",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 45.0,
-    bids: 8,
-    timeLeft: "12h 30m",
-    isHot: true,
+    current_price: 45.0,
+    end_date: new Date(Date.now() + 12 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
+    images: [{ url: "/placeholder.svg?height=300&width=300" }],
   },
   {
     id: "8",
     title: "Vintage Vinyl Records Collection - 1970s Rock - 20 LPs",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 175.0,
-    bids: 18,
-    timeLeft: "1d 2h",
-    isHot: false,
+    current_price: 175.0,
+    end_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+    images: [{ url: "/placeholder.svg?height=300&width=300" }],
   },
 ]

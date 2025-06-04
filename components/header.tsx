@@ -11,12 +11,23 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { Bell, Heart, Menu, Search, ShoppingCart, User } from "lucide-react"
+import { Bell, Heart, Menu, Search, ShoppingCart } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { UserAccountNav } from "@/components/auth/user-account-nav"
 
-export function Header() {
+interface HeaderProps {
+  user?: {
+    id: string
+    email?: string
+    username?: string
+    full_name?: string
+    avatar_url?: string
+  } | null
+}
+
+export function Header({ user }: HeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   return (
@@ -49,6 +60,16 @@ export function Header() {
               <Link href="/help" className="text-lg font-medium">
                 Help & Contact
               </Link>
+              {!user && (
+                <>
+                  <Link href="/auth/login" className="text-lg font-medium">
+                    Sign In
+                  </Link>
+                  <Link href="/auth/register" className="text-lg font-medium">
+                    Register
+                  </Link>
+                </>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
@@ -112,22 +133,40 @@ export function Header() {
               />
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Notifications</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <Heart className="h-5 w-5" />
-            <span className="sr-only">Watchlist</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="sr-only">Cart</span>
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Account</span>
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="icon" className="hidden md:flex">
+                <Bell className="h-5 w-5" />
+                <span className="sr-only">Notifications</span>
+              </Button>
+              <Link href="/profile/watchlist">
+                <Button variant="ghost" size="icon" className="hidden md:flex">
+                  <Heart className="h-5 w-5" />
+                  <span className="sr-only">Watchlist</span>
+                </Button>
+              </Link>
+              <Link href="/cart">
+                <Button variant="ghost" size="icon">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="sr-only">Cart</span>
+                </Button>
+              </Link>
+              <UserAccountNav user={user} />
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link href="/auth/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button size="sm" className="bg-rose-600 hover:bg-rose-700">
+                  Register
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
         <div
           className={cn(
