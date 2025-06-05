@@ -11,7 +11,7 @@ INSERT INTO public.categories (name, slug, description, icon) VALUES
 ('Other', 'other', 'Everything else', 'shopping-bag')
 ON CONFLICT (slug) DO NOTHING;
 
--- Add some subcategories
+-- Add some subcategoriess
 INSERT INTO public.categories (name, slug, description, icon, parent_id) VALUES
 ('Smartphones', 'smartphones', 'Mobile phones and accessories', 'smartphone', (SELECT id FROM public.categories WHERE slug = 'electronics')),
 ('Laptops', 'laptops', 'Notebook computers and accessories', 'laptop', (SELECT id FROM public.categories WHERE slug = 'electronics')),
