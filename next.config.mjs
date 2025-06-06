@@ -9,6 +9,13 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  webpack: (config, { isServer }) => {
+    // Suppress the warning from @supabase/realtime-js
+    config.ignoreWarnings = [
+      { module: /node_modules\/@supabase\/realtime-js/ }
+    ]
+    return config
+  }
 }
 
 export default nextConfig

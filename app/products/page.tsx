@@ -19,7 +19,9 @@ interface ProductsPageProps {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { category, sort = "newest", condition, min_price, max_price, format, page = "1" } = searchParams
+  const params = await searchParams
+  
+  const { category, sort = "newest", condition, min_price, max_price, format, page = "1" } = params
 
   const minPrice = min_price ? Number.parseFloat(min_price) : undefined
   const maxPrice = max_price ? Number.parseFloat(max_price) : undefined

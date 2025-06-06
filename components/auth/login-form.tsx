@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { createBrowserSupabaseClient, isSupabaseConfigured } from "@/lib/supabase"
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -26,21 +26,26 @@ export function LoginForm() {
       if (!isSupabaseConfigured()) {
         throw new Error("Supabase not configured. This is a demo version.")
       }
-
-      const supabase = createBrowserSupabaseClient()
+      const supabase = createClient()
       if (!supabase) {
         throw new Error("Failed to create Supabase client")
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) {
-        throw error
+      if (signInError) {
+        throw signInError
       }
 
+      // Verify authentication with getUser
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        throw new Error("Failed to verify authentication")
+      }
       toast({
         title: "Success!",
         description: "You have been logged in.",

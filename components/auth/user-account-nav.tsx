@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createBrowserSupabaseClient } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
   const router = useRouter()
 
   const handleSignOut = async () => {
-    const supabase = createBrowserSupabaseClient()
+    const supabase = createClient()
     await supabase.auth.signOut()
     router.refresh()
     router.push("/")

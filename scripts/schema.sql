@@ -214,7 +214,7 @@ BEGIN
   
   -- Check if bid amount is higher than current price
   IF NEW.amount <= product_current_price THEN
-    RAISE EXCEPTION 'Bid must be higher than current price (%)%', product_current_price;
+    RAISE EXCEPTION 'Bid must be higher than current price: $%', product_current_price;
   END IF;
   
   RETURN NEW;

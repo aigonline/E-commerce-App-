@@ -1,6 +1,7 @@
 "use server"
 
-import { createServerSupabaseClient, isSupabaseConfigured } from "@/lib/supabase"
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server"
+import { getUser } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -349,7 +350,7 @@ export async function getProducts({
     return { products: paginatedProducts, count: filteredProducts.length }
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) return { products: [], count: 0 }
 
   let query = supabase
@@ -429,7 +430,7 @@ export async function getProductById(id: string) {
     return mockProducts.find((p) => p.id === id) || null
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) return null
 
   const { data, error } = await supabase
@@ -476,7 +477,7 @@ export async function getBidHistory(productId: string) {
     ]
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) return []
 
   const { data, error } = await supabase
@@ -502,7 +503,7 @@ export async function getRelatedProducts(productId: string, categoryId: string, 
     return mockProducts.filter((p) => p.id !== productId).slice(0, limit)
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) return []
 
   const { data, error } = await supabase
@@ -525,63 +526,75 @@ export async function getRelatedProducts(productId: string, categoryId: string, 
   return data || []
 }
 
-export async function createProduct(formData: FormData) {
-  if (!isSupabaseConfigured()) {
-    throw new Error("Supabase not configured. Please set up your environment variables.")
+export async function createProduct(data: {
+  title: string
+  description: string
+  category_id: string
+  condition: string
+  starting_price: number
+  buy_now_price?: number | null
+  end_date: Date
+  images: string[]
+}) {
+  const user = await getUser()
+  if (!user) {
+    throw new Error('Not authenticated')
   }
 
-  const supabase = createServerSupabaseClient()
-  if (!supabase) throw new Error("Failed to create Supabase client")
-
-  // Get the session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
-    redirect("/auth/login")
+  const supabase = await createClient()
+  if (!supabase) {
+    throw new Error('Failed to initialize Supabase client')
   }
-
-  const title = formData.get("title") as string
-  const description = formData.get("description") as string
-  const categoryId = formData.get("category") as string
-  const condition = formData.get("condition") as string
-  const startingPrice = Number.parseFloat(formData.get("starting_price") as string)
-  const buyNowPrice = formData.get("buy_now_price") ? Number.parseFloat(formData.get("buy_now_price") as string) : null
-  const isAuction = formData.get("is_auction") === "on"
-  const isBuyNow = formData.get("is_buy_now") === "on" || !!buyNowPrice
-  const duration = Number.parseInt(formData.get("duration") as string)
-
-  // Calculate end date
-  const endDate = new Date()
-  endDate.setDate(endDate.getDate() + duration)
 
   // Insert the product
-  const { data: product, error } = await supabase
-    .from("products")
+  const { data: product, error: productError } = await supabase
+    .from('products')
     .insert({
-      title,
-      description,
-      seller_id: session.user.id,
-      category_id: categoryId,
-      condition,
-      starting_price: startingPrice,
-      current_price: startingPrice,
-      buy_now_price: buyNowPrice,
-      is_auction: isAuction,
-      is_buy_now: isBuyNow,
-      end_date: endDate.toISOString(),
+      title: data.title,
+      description: data.description,
+      category_id: data.category_id,
+      condition: data.condition,
+      starting_price: data.starting_price,
+      current_price: data.starting_price,
+      buy_now_price: data.buy_now_price,
+      end_date: data.end_date.toISOString(),
+      seller_id: user.id,
+      status: 'active',
+      is_auction: true,
+      is_buy_now: !!data.buy_now_price
     })
     .select()
     .single()
 
-  if (error) {
-    console.error("Error creating product:", error)
-    throw new Error("Failed to create product")
+  if (productError) {
+    throw productError
   }
 
-  revalidatePath("/products")
-  redirect(`/products/${product.id}`)
+  // Insert product images
+  if (data.images.length > 0) {
+    const { error: imagesError } = await supabase
+      .from('product_images')
+      .insert(
+        data.images.map((url, index) => ({
+          product_id: product.id,
+          url,
+          position: index
+        }))
+      )
+
+    if (imagesError) {
+      // Rollback product creation
+      await supabase
+        .from('products')
+        .delete()
+        .match({ id: product.id })
+      
+      throw imagesError
+    }
+  }
+
+  revalidatePath('/products')
+  return product
 }
 
 export async function placeBid(formData: FormData) {
@@ -589,7 +602,7 @@ export async function placeBid(formData: FormData) {
     throw new Error("Supabase not configured. Please set up your environment variables.")
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) throw new Error("Failed to create Supabase client")
 
   // Get the session
@@ -624,7 +637,7 @@ export async function addToWatchlist(productId: string) {
     throw new Error("Supabase not configured. Please set up your environment variables.")
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) throw new Error("Failed to create Supabase client")
 
   // Get the session
@@ -663,7 +676,7 @@ export async function isInWatchlist(productId: string) {
     return false
   }
 
-  const supabase = createServerSupabaseClient()
+  const supabase = await createClient()
   if (!supabase) return false
 
   // Get the session
