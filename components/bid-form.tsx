@@ -1,47 +1,88 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { placeBid } from "@/app/actions/products"
 
-export function BidForm() {
-  const [bidAmount, setBidAmount] = useState("125.00")
+interface BidFormProps {
+  productId: string
+  currentPrice: number
+  endDate: Date
+  minimumBid?: number
+}
 
-  const handleBid = (e: React.FormEvent) => {
-    e.preventDefault()
-    toast({
-      title: "Bid placed!",
-      description: `You've placed a bid for $${bidAmount}`,
-    })
+export function BidForm({ productId, currentPrice, endDate, minimumBid }: BidFormProps) {
+  const router = useRouter()
+  const [error, setError] = useState<string>("")
+  const [loading, setLoading] = useState(false)
+  const minBid = minimumBid || currentPrice + 0.01
+
+  const isEnded = new Date(endDate) <= new Date()
+
+  async function onSubmit(formData: FormData) {
+    try {
+      setError("")
+      setLoading(true)
+      
+      const amount = Number(formData.get("amount"))
+      
+      if (amount < minBid) {
+        setError(`Minimum bid must be $${minBid.toFixed(2)}`)
+        return
+      }
+
+      await placeBid(formData)
+      router.refresh()
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to place bid")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (isEnded) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>This auction has ended</AlertDescription>
+      </Alert>
+    )
   }
 
   return (
-    <form onSubmit={handleBid} className="space-y-4">
+    <form action={onSubmit} className="space-y-4">
+      <input type="hidden" name="product_id" value={productId} />
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span>Enter your max bid:</span>
-          <span>Minimum bid: $125.00</span>
-        </div>
-        <div className="flex">
-          <div className="flex h-10 w-10 items-center justify-center rounded-l-md border border-r-0 bg-gray-50 text-gray-500">
-            $
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <span className="text-gray-500">$</span>
+            </div>
+            <Input
+              type="number"
+              name="amount"
+              step="0.01"
+              min={minBid}
+              defaultValue={minBid.toFixed(2)}
+              placeholder="Enter bid amount"
+              className="pl-7"
+            />
           </div>
-          <Input
-            type="number"
-            step="0.01"
-            min="125.00"
-            value={bidAmount}
-            onChange={(e) => setBidAmount(e.target.value)}
-            className="rounded-l-none"
-          />
+          <Button type="submit" disabled={loading}>
+            {loading ? "Placing bid..." : "Place Bid"}
+          </Button>
         </div>
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <p className="text-sm text-gray-500">
+          Enter ${minBid.toFixed(2)} or more
+        </p>
       </div>
-      <Button type="submit" className="w-full bg-rose-600 hover:bg-rose-700">
-        Place Bid
-      </Button>
     </form>
   )
 }

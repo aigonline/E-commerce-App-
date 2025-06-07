@@ -1,13 +1,74 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Clock, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getRelatedProducts } from "@/app/actions/products"
+import { getTimeLeft } from "@/lib/utils"
 
-export function RelatedProducts() {
+interface Product {
+  id: string
+  title: string
+  current_price: number
+  is_auction: boolean
+  is_buy_now: boolean
+  end_date: string
+  images: Array<{ id: string; url: string }>
+  bids: Array<{ count: number }>
+}
+
+interface RelatedProductsProps {
+  categoryId: string
+  currentProductId: string
+}
+
+export function RelatedProducts({ categoryId, currentProductId }: RelatedProductsProps) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadRelatedProducts() {
+      try {
+        const relatedProducts = await getRelatedProducts(currentProductId, categoryId)
+        setProducts(relatedProducts)
+      } catch (error) {
+        console.error('Failed to load related products:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadRelatedProducts()
+  }, [categoryId, currentProductId])
+
+  if (loading) {
+    return (
+      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="animate-pulse rounded-lg border bg-white p-4">
+            <div className="aspect-square bg-gray-200" />
+            <div className="mt-4 h-4 w-3/4 bg-gray-200" />
+            <div className="mt-2 h-6 w-1/2 bg-gray-200" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="mt-6 rounded-lg border bg-gray-50 p-8 text-center text-gray-500">
+        No related products found
+      </div>
+    )
+  }
+
   return (
     <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {relatedProducts.map((product) => (
+      {products.map((product) => (
         <div
           key={product.id}
           className="group relative overflow-hidden rounded-lg border bg-white transition-all hover:shadow-md"
@@ -17,7 +78,7 @@ export function RelatedProducts() {
           </Link>
           <div className="relative aspect-square overflow-hidden">
             <Image
-              src={product.image || "/placeholder.svg"}
+              src={product.images[0]?.url || "/placeholder.svg"}
               alt={product.title}
               fill
               className="object-cover transition-transform group-hover:scale-105"
@@ -35,17 +96,19 @@ export function RelatedProducts() {
             <h3 className="line-clamp-2 text-base font-medium">{product.title}</h3>
             <div className="mt-2 flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold">${product.price.toFixed(2)}</p>
-                {product.isAuction && <p className="text-xs text-gray-500">{product.bids} bids</p>}
+                <p className="text-lg font-bold">${product.current_price.toFixed(2)}</p>
+                {product.is_auction && (
+                  <p className="text-xs text-gray-500">{product.bids[0]?.count || 0} bids</p>
+                )}
               </div>
               <div className="flex items-center text-xs text-gray-500">
-                {product.isAuction && (
+                {product.is_auction && (
                   <>
                     <Clock className="mr-1 h-3 w-3" />
-                    {product.timeLeft}
+                    {getTimeLeft(new Date(product.end_date))}
                   </>
                 )}
-                {!product.isAuction && (
+                {product.is_buy_now && (
                   <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
                     Buy Now
                   </Badge>
@@ -58,42 +121,3 @@ export function RelatedProducts() {
     </div>
   )
 }
-
-const relatedProducts = [
-  {
-    id: "related-1",
-    title: "Vintage Kodak Instamatic Camera",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 85.0,
-    bids: 15,
-    timeLeft: "3d 2h",
-    isAuction: true,
-  },
-  {
-    id: "related-2",
-    title: "Retro Film Camera Collection",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 199.99,
-    bids: 0,
-    timeLeft: "",
-    isAuction: false,
-  },
-  {
-    id: "related-3",
-    title: "Antique Camera Lens Set",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 125.0,
-    bids: 8,
-    timeLeft: "1d 12h",
-    isAuction: true,
-  },
-  {
-    id: "related-4",
-    title: "Vintage Camera Bag Leather",
-    image: "/placeholder.svg?height=300&width=300",
-    price: 45.0,
-    bids: 3,
-    timeLeft: "2d 6h",
-    isAuction: true,
-  },
-]

@@ -44,22 +44,22 @@ const CATEGORIES = [
     { label: "Collectibles", value: "f3e4d5c6-4567-8901-ffff-fedcba987654" }
 ]
 const productSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  category_id: z.string({ required_error: "Please select a category" })
+    title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters"),
+    description: z.string().min(10, "Description must be at least 10 characters"),
+    category_id: z.string({ required_error: "Please select a category" })
         .uuid("Invalid category selected"),
-  condition: z.string({ required_error: "Please select a condition" }),
-  starting_price: z.number({ 
-    required_error: "Starting price is required",
-    invalid_type_error: "Starting price must be a number" 
-  }).min(0.01, "Price must be greater than 0"),
-  buy_now_price: z.number().nullable().optional()
-    .refine(val => val === null || val === undefined || val > 0, "Buy now price must be greater than 0"),
-  end_date: z.date({ required_error: "End date is required" })
-    .min(new Date(), "End date must be in the future"),
-  images: z.array(z.string())
-    .min(1, "At least one image is required")
-    .max(10, "Maximum 10 images allowed")
+    condition: z.string({ required_error: "Please select a condition" }),
+    starting_price: z.number({
+        required_error: "Starting price is required",
+        invalid_type_error: "Starting price must be a number"
+    }).min(0.01, "Price must be greater than 0"),
+    buy_now_price: z.number().nullable().optional()
+        .refine(val => val === null || val === undefined || val > 0, "Buy now price must be greater than 0"),
+    end_date: z.date({ required_error: "End date is required" })
+        .min(new Date(), "End date must be in the future"),
+    images: z.array(z.string())
+        .min(1, "At least one image is required")
+        .max(10, "Maximum 10 images allowed")
 })
 
 export function ProductForm() {
@@ -71,10 +71,12 @@ export function ProductForm() {
         defaultValues: {
             title: "",
             description: "",
-            starting_price: undefined,
-            buy_now_price: undefined,
-            images: [],
+            category_id: "",
+            condition: "",
+            starting_price: 0,
+            buy_now_price: null,
             end_date: undefined,
+            images: []
         }
     })
 
@@ -192,53 +194,50 @@ export function ProductForm() {
                     )}
                 />
 
-                <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                        control={form.control}
-                        name="starting_price"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Starting Price</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        {...field}
-                                        onChange={e => field.onChange(e.target.valueAsNumber)}
-                                        placeholder="0.00"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                <FormField
+                    control={form.control}
+                    name="starting_price"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Starting Price</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={field.value || ''}
+                                    onChange={e => field.onChange(e.target.valueAsNumber || 0)}
+                                    placeholder="0.00"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                    <FormField
-                        control={form.control}
-                        name="buy_now_price"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Buy Now Price (Optional)</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        {...field}
-                                        value={field.value ?? ''}
-                                        onChange={e => {
-                                            const value = e.target.valueAsNumber
-                                            field.onChange(isNaN(value) ? undefined : value)
-                                        }}
-                                        placeholder="0.00"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
+                <FormField
+                    control={form.control}
+                    name="buy_now_price"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Buy Now Price (Optional)</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={field.value ?? ''}
+                                    onChange={e => {
+                                        const value = e.target.valueAsNumber
+                                        field.onChange(isNaN(value) ? null : value)
+                                    }}
+                                    placeholder="0.00"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 <FormField
                     control={form.control}
@@ -258,7 +257,6 @@ export function ProductForm() {
                         </FormItem>
                     )}
                 />
-
                 <FormField
                     control={form.control}
                     name="images"

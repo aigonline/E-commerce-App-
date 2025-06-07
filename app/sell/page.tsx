@@ -2,6 +2,8 @@ import { requireUser } from "@/lib/auth"
 import { ProductForm } from "@/components/product-form"
 
 export default async function SellPage() {
+  // Check if user is authenticated
+  await requireUser()
   
   return (
     <div className="container mx-auto px-4 py-8">

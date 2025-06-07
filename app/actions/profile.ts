@@ -1,11 +1,11 @@
 "use server"
 
-import { createServerSupabaseClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 export async function getUserListings() {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
 
   // Get the session
   const {
@@ -34,7 +34,7 @@ export async function getUserListings() {
 }
 
 export async function getUserBids() {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
 
   // Get the session
   const {
@@ -66,7 +66,7 @@ export async function getUserBids() {
 }
 
 export async function getUserWatchlist() {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
 
   // Get the session
   const {
@@ -99,7 +99,7 @@ export async function getUserWatchlist() {
 }
 
 export async function updateProfile(formData: FormData) {
-  const supabase = createServerSupabaseClient()
+  const supabase = createClient()
 
   // Get the session
   const {

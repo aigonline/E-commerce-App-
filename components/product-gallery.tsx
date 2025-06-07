@@ -4,18 +4,32 @@ import { useState } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
-export function ProductGallery() {
-  const [selectedImage, setSelectedImage] = useState(0)
+interface ProductGalleryProps {
+  images: {
+    src: string
+    alt: string
+  }[]
+}
+
+export function ProductGallery({ images }: ProductGalleryProps) {  const [selectedImage, setSelectedImage] = useState(0)
 
   return (
     <div className="space-y-4">
       <div className="relative aspect-square overflow-hidden rounded-lg border bg-white">
-        <Image
-          src={images[selectedImage].src || "/placeholder.svg"}
-          alt={images[selectedImage].alt}
-          fill
-          className="object-contain"
-        />
+        {images[selectedImage] && (
+          <Image
+        src={images[selectedImage]?.src || "/placeholder.svg"}
+        alt={images[selectedImage]?.alt ?? `Product image ${selectedImage + 1}`}
+        fill
+        priority
+        className="object-contain"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.src = "/placeholder.svg";
+        }}
+          />
+        )}
       </div>
       <div className="grid grid-cols-5 gap-2">
         {images.map((image, index) => (

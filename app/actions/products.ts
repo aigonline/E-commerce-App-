@@ -425,31 +425,70 @@ export async function getProducts({
 }
 
 export async function getProductById(id: string) {
-  if (!isSupabaseConfigured()) {
-    // Return mock data for demo
-    return mockProducts.find((p) => p.id === id) || null
-  }
+  try {
+    const supabase = await createClient()
+    if (!supabase) return null
 
-  const supabase = await createClient()
-  if (!supabase) return null
+    // First fetch the product with basic relations
+    const { data: product, error } = await supabase
+      .from("products")
+      .select(`
+        *,
+        seller:profiles(
+          id,
+          username,
+          full_name,
+          avatar_url
+        ),
+        category:categories(
+          id,
+          name,
+          slug
+        ),
+        images:product_images(
+          id,
+          url,
+          position
+        )
+      `)
+      .eq("id", id)
+      .single()
 
-  const { data, error } = await supabase
-    .from("products")
-    .select(`
-      *,
-      seller:profiles!seller_id(*),
-      category:categories(*),
-      images:product_images(*)
-    `)
-    .eq("id", id)
-    .single()
+    if (error) {
+      console.error("Error fetching product:", error)
+      return null
+    }
 
-  if (error) {
-    console.error("Error fetching product:", error)
+    // Then fetch bids separately
+    const { data: bids, error: bidsError } = await supabase
+      .from("bids")
+      .select(`
+        id,
+        amount,
+        created_at,
+        bidder:profiles(
+          id,
+          username,
+          avatar_url
+        )
+      `)
+      .eq("product_id", id)
+      .order("created_at", { ascending: false })
+
+    if (bidsError) {
+      console.error("Error fetching bids:", bidsError)
+    }
+
+    // Combine the data
+    return {
+      ...product,
+      bids: bids || []
+    }
+
+  } catch (error) {
+    console.error("Unexpected error:", error)
     return null
   }
-
-  return data
 }
 
 export async function getBidHistory(productId: string) {
@@ -497,33 +536,29 @@ export async function getBidHistory(productId: string) {
   return data || []
 }
 
-export async function getRelatedProducts(productId: string, categoryId: string, limit = 4) {
-  if (!isSupabaseConfigured()) {
-    // Return mock related products
-    return mockProducts.filter((p) => p.id !== productId).slice(0, limit)
-  }
-
+export async function getRelatedProducts(currentProductId: string, categoryId: string) {
   const supabase = await createClient()
   if (!supabase) return []
 
-  const { data, error } = await supabase
-    .from("products")
+  const { data: products, error } = await supabase
+    .from('products')
     .select(`
       *,
-      seller:profiles!seller_id(*),
-      images:product_images(*)
+      images:product_images(*),
+      bids(count)
     `)
-    .eq("category_id", categoryId)
-    .eq("status", "active")
-    .neq("id", productId)
-    .limit(limit)
+    .eq('category_id', categoryId)
+    .neq('id', currentProductId)
+    .eq('status', 'active')
+    .limit(4)
+    .order('created_at', { ascending: false })
 
   if (error) {
-    console.error("Error fetching related products:", error)
+    console.error('Error fetching related products:', error)
     return []
   }
 
-  return data || []
+  return products
 }
 
 export async function createProduct(data: {
@@ -598,40 +633,62 @@ export async function createProduct(data: {
 }
 
 export async function placeBid(formData: FormData) {
-  if (!isSupabaseConfigured()) {
-    throw new Error("Supabase not configured. Please set up your environment variables.")
-  }
-
   const supabase = await createClient()
   if (!supabase) throw new Error("Failed to create Supabase client")
 
-  // Get the session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
-    redirect("/auth/login")
+  // Get the current user
+  const user = await getUser()
+  if (!user) {
+    throw new Error("You must be logged in to place a bid")
   }
 
   const productId = formData.get("product_id") as string
-  const amount = Number.parseFloat(formData.get("amount") as string)
+  const amount = Number(formData.get("amount"))
 
-  // Insert the bid
-  const { error } = await supabase.from("bids").insert({
-    product_id: productId,
-    bidder_id: session.user.id,
-    amount,
+  // Validate the amount
+  if (isNaN(amount) || amount <= 0) {
+    throw new Error("Invalid bid amount")
+  }
+
+  // Get the current product details
+  const { data: product, error: productError } = await supabase
+    .from("products")
+    .select("current_price, end_date, seller_id")
+    .eq("id", productId)
+    .single()
+
+  if (productError || !product) {
+    throw new Error("Product not found")
+  }
+
+  // Check if auction has ended
+  if (new Date(product.end_date) <= new Date()) {
+    throw new Error("This auction has ended")
+  }
+
+  // Check if user is not the seller
+  if (product.seller_id === user.id) {
+    throw new Error("You cannot bid on your own item")
+  }
+
+  // Check if bid is high enough
+  if (amount <= product.current_price) {
+    throw new Error(`Bid must be higher than current price: $${product.current_price}`)
+  }
+
+  // Start a transaction
+  const { error: transactionError } = await supabase.rpc('place_bid', {
+    p_product_id: productId,
+    p_bidder_id: user.id,
+    p_amount: amount
   })
 
-  if (error) {
-    console.error("Error placing bid:", error)
-    throw new Error(error.message || "Failed to place bid")
+  if (transactionError) {
+    throw new Error(transactionError.message || "Failed to place bid")
   }
 
   revalidatePath(`/products/${productId}`)
 }
-
 export async function addToWatchlist(productId: string) {
   if (!isSupabaseConfigured()) {
     throw new Error("Supabase not configured. Please set up your environment variables.")
