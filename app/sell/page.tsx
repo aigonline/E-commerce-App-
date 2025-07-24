@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth"
+import { requireUser } from "@/app/lib/auth"
 import { ProductForm } from "@/components/product-form"
 
 export default async function SellPage() {

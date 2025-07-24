@@ -6,7 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/toaster"
-import { getUser } from "@/lib/auth"
+import { getUser } from "@/app/lib/auth"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -28,7 +28,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <div className="relative flex min-h-screen flex-col">
-            <Header user={user} />
+            <Header />
             <div className="flex-1">{children}</div>
             <Footer />
             <Toaster />

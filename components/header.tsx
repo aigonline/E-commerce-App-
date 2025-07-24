@@ -1,5 +1,4 @@
 "use client"
-
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,9 +12,16 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Bell, Heart, Menu, Search, ShoppingCart } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { cn } from "@/app/lib/utils"
 import { UserAccountNav } from "@/components/auth/user-account-nav"
+import { createClient } from '@/app/lib/supabase/client'
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+const supabase = createClient()
+
 
 interface HeaderProps {
   user?: {
@@ -27,8 +33,33 @@ interface HeaderProps {
   } | null
 }
 
-export function Header({ user }: HeaderProps) {
+
+  
+export function Header() {
+  const [user, setUser] = useState<{
+    id: string
+    email?: string
+    username?: string
+    full_name?: string
+    avatar_url?: string
+  } | null>(null)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  useEffect(() => {
+    async function fetchUser() {
+      const { data, error } = await supabase.auth.getUser()
+      if (data?.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          username: data.user.user_metadata?.username,
+          full_name: data.user.user_metadata?.full_name
+        })
+      } else {
+        setUser(null)
+      }
+    }
+    fetchUser()
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">

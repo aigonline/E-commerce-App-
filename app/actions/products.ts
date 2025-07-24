@@ -1,7 +1,7 @@
 "use server"
 
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/server"
-import { getUser } from "@/lib/auth"
+import { createClient, isSupabaseConfigured } from "@/app/lib/supabase/server"
+import { getUser } from "@/app/lib/auth"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -633,62 +633,40 @@ export async function createProduct(data: {
 }
 
 export async function placeBid(formData: FormData) {
+  if (!isSupabaseConfigured()) {
+    throw new Error("Supabase not configured. Please set up your environment variables.")
+  }
+
   const supabase = await createClient()
   if (!supabase) throw new Error("Failed to create Supabase client")
 
-  // Get the current user
-  const user = await getUser()
-  if (!user) {
-    throw new Error("You must be logged in to place a bid")
+  // Get the session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) {
+    redirect("/auth/login")
   }
 
   const productId = formData.get("product_id") as string
-  const amount = Number(formData.get("amount"))
+  const amount = Number.parseFloat(formData.get("amount") as string)
 
-  // Validate the amount
-  if (isNaN(amount) || amount <= 0) {
-    throw new Error("Invalid bid amount")
-  }
-
-  // Get the current product details
-  const { data: product, error: productError } = await supabase
-    .from("products")
-    .select("current_price, end_date, seller_id")
-    .eq("id", productId)
-    .single()
-
-  if (productError || !product) {
-    throw new Error("Product not found")
-  }
-
-  // Check if auction has ended
-  if (new Date(product.end_date) <= new Date()) {
-    throw new Error("This auction has ended")
-  }
-
-  // Check if user is not the seller
-  if (product.seller_id === user.id) {
-    throw new Error("You cannot bid on your own item")
-  }
-
-  // Check if bid is high enough
-  if (amount <= product.current_price) {
-    throw new Error(`Bid must be higher than current price: $${product.current_price}`)
-  }
-
-  // Start a transaction
-  const { error: transactionError } = await supabase.rpc('place_bid', {
-    p_product_id: productId,
-    p_bidder_id: user.id,
-    p_amount: amount
+  // Insert the bid
+  const { error } = await supabase.from("bids").insert({
+    product_id: productId,
+    bidder_id: session.user.id,
+    amount,
   })
 
-  if (transactionError) {
-    throw new Error(transactionError.message || "Failed to place bid")
+  if (error) {
+    console.error("Error placing bid:", error)
+    throw new Error(error.message || "Failed to place bid")
   }
 
   revalidatePath(`/products/${productId}`)
 }
+
 export async function addToWatchlist(productId: string) {
   if (!isSupabaseConfigured()) {
     throw new Error("Supabase not configured. Please set up your environment variables.")

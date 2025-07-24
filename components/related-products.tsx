@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getRelatedProducts } from "@/app/actions/products"
-import { getTimeLeft } from "@/lib/utils"
+import { getTimeLeft } from "@/app/lib/utils"
 
 interface Product {
   id: string
