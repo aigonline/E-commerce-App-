@@ -22,7 +22,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="container px-4 py-8 md:px-6">
-      <h1 className="mb-8 text-3xl font-bold capitalize">{slug.replace("-", " ")}</h1>
+      <h1 className="mb-8 text-3xl font-bold capitalize">{slug ? slug.replace("-", " ") : "Unknown Category"}</h1>
       <ProductGrid products={products} />
     </div>
   )
