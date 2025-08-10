@@ -30,7 +30,10 @@ jobs:
       - name: Run TypeScript type check
         run: npm run type-check
 
-      - name: Run linting
+      - name: Setup ESLint
+        run: npm install eslint-config-next --save-dev
+
+      - name: Run ESLint
         run: npm run lint
 
       - name: Build application
