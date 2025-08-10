@@ -284,6 +284,7 @@ const mockProducts = [
 ]
 
 export async function getProducts({
+  search,
   category,
   sort = "newest",
   condition,
@@ -293,6 +294,7 @@ export async function getProducts({
   limit = 24,
   page = 1,
 }: {
+  search?: string
   category?: string
   sort?: "newest" | "ending" | "price_asc" | "price_desc" | "bids"
   condition?: string[]
@@ -305,6 +307,16 @@ export async function getProducts({
   if (!isSupabaseConfigured()) {
     // Return mock data for demo
     let filteredProducts = [...mockProducts]
+
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase()
+      filteredProducts = filteredProducts.filter((p) => 
+        p.title.toLowerCase().includes(searchLower) ||
+        p.description.toLowerCase().includes(searchLower) ||
+        p.category.name.toLowerCase().includes(searchLower)
+      )
+    }
 
     // Apply filters
     if (category) {
@@ -367,6 +379,11 @@ export async function getProducts({
       { count: "exact" },
     )
     .eq("status", "active")
+
+  // Apply search filter
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+  }
 
   // Apply filters
   if (category) {
