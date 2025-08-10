@@ -34,6 +34,11 @@ export const getUser = cache(async () => {
   const supabase = await createClient()
   if (!supabase) return null
   
+  if (!session.user) {
+    console.error('Session user is null')
+    return null
+  }
+
   try {
     const { data: profile, error } = await supabase
       .from('profiles')

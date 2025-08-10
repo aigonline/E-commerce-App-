@@ -53,18 +53,7 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
-      components={{
-        Navigation: ({ ...props }) => (
-          <div className="flex items-center">
-            <button {...props} className="mr-2">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button {...props} className="ml-2">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        ),
-      }}
+      // Removed invalid 'Navigation' component override
       {...props}
     />
   )
