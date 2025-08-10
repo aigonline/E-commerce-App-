@@ -1,5 +1,7 @@
 # 🏪 BidBay - Modern E-commerce Auction Platform
 
+> **Status**: ✅ Production Ready | 🚀 CI/CD Enabled
+
 A full-stack e-commerce auction platform built with Next.js 15, TypeScript, Tailwind CSS, and Supabase. Features real-time bidding, user authentication, product management, and a complete auction system.
 
 ## ✨ Features
