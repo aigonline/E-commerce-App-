@@ -40,10 +40,8 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
-
       - name: Build application
         run: npm run build
-          
   deploy-preview:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
