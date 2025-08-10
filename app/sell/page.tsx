@@ -1,10 +1,10 @@
 import { requireUser } from "@/lib/auth"
 import { ProductForm } from "@/components/product-form"
 
-export default async function SellPage() {
-  // Check if user is authenticated
-  await requireUser()
+// Force dynamic rendering - this page requires authentication
+export const dynamic = 'force-dynamic'
 
+export default async function SellPage() {
   // Check if environment variables are set
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return (
@@ -18,6 +18,9 @@ export default async function SellPage() {
       </div>
     )
   }
+
+  // Check if user is authenticated
+  await requireUser()
   
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 lg:py-12">
