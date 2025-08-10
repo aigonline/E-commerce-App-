@@ -11,12 +11,12 @@ export const getSession = cache(async () => {
   if (!supabase) return null
   
   try {
-    const { data: { session }, error } = await supabase.auth.getSession()
+    const { data: { user }, error } = await supabase.auth.getUser()
     if (error) {
-      console.error('Error getting session:', error)
+      console.error('Error getting user:', error)
       return null
     }
-    return session
+    return { user }
   } catch (error) {
     console.error('Unexpected error getting session:', error)
     return null

@@ -705,18 +705,24 @@ export async function addToWatchlist(productId: string) {
 
   // Get the session
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!session) {
-    redirect("/auth/login")
+  if (error) {
+    console.error("Error fetching user:", error);
+    redirect("/auth/login");
+  }
+
+  if (!user) {
+    redirect("/auth/login");
   }
 
   // Check if already in watchlist
   const { data: existing } = await supabase
     .from("watchlist")
     .select()
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("product_id", productId)
     .maybeSingle()
 
@@ -726,7 +732,7 @@ export async function addToWatchlist(productId: string) {
   } else {
     // Add to watchlist
     await supabase.from("watchlist").insert({
-      user_id: session.user.id,
+      user_id: user.id,
       product_id: productId,
     })
   }
@@ -744,17 +750,23 @@ export async function isInWatchlist(productId: string) {
 
   // Get the session
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (error) {
+    console.error("Error fetching user:", error);
+    return false
+  }
+
+  if (!user) {
     return false
   }
 
   const { data } = await supabase
     .from("watchlist")
     .select()
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("product_id", productId)
     .maybeSingle()
 

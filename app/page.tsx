@@ -53,32 +53,32 @@ export default async function Home() {
               </div>
               <div className="flex items-center justify-center order-first lg:order-last">
                 <div className="relative h-[280px] w-full sm:h-[320px] md:h-[380px] lg:h-[450px]">
-                  <div className="absolute right-0 top-0 h-full w-full rounded-lg bg-gradient-to-br from-rose-100 to-rose-50 p-4 sm:p-6">
+                    <div className="absolute right-0 top-0 h-full w-full rounded-lg bg-gradient-to-br from-rose-100 to-rose-50 p-4 sm:p-6 overflow-hidden">
                     <div className="absolute bottom-4 left-4 right-4 top-4 sm:bottom-6 sm:left-6 sm:right-6 sm:top-6 rounded-lg bg-white shadow-lg">
                       <div className="p-3 sm:p-4">
-                        <div className="mb-3 flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-rose-100 flex items-center justify-center">
-                              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-rose-600" />
-                            </div>
-                            <span className="text-sm sm:text-base font-medium">Featured Auction</span>
-                          </div>
-                          <div className="flex items-center space-x-1 rounded-full bg-rose-50 px-2 py-1 text-xs text-rose-600">
-                            <Clock className="h-3 w-3" />
-                            <span>Ending soon</span>
-                          </div>
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-rose-100 flex items-center justify-center">
+                          <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-rose-600" />
                         </div>
-                        <div className="aspect-[4/3] w-full rounded-md bg-gray-100"></div>
-                        <div className="mt-3">
-                          <h3 className="text-sm sm:text-base font-medium">Vintage Camera Collection</h3>
-                          <div className="mt-1 flex items-center justify-between">
-                            <span className="text-base sm:text-lg font-bold">$120.50</span>
-                            <span className="text-xs sm:text-sm text-gray-500">23 bids</span>
-                          </div>
+                        <span className="text-sm sm:text-base font-medium">Featured Auction</span>
+                        </div>
+                        <div className="flex items-center space-x-1 rounded-full bg-rose-50 px-2 py-1 text-xs text-rose-600">
+                        <Clock className="h-3 w-3" />
+                        <span>Ending soon</span>
                         </div>
                       </div>
+                      <div className="flex items-center justify-center aspect-[4/3] w-full rounded-md bg-gray-100"></div>
+                      <div className="mt-3">
+                        <h3 className="text-sm sm:text-base font-medium">Vintage Camera Collection</h3>
+                        <div className="mt-1 flex items-center justify-between">
+                        <span className="text-base sm:text-lg font-bold">$120.50</span>
+                        <span className="text-xs sm:text-sm text-gray-500">23 bids</span>
+                        </div>
+                      </div>
+                      </div>
                     </div>
-                  </div>
+                    </div>
                 </div>
               </div>
             </div>
