@@ -11,7 +11,7 @@ import { BidForm } from "@/components/bid-form"
 import { notFound } from "next/navigation"
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
-  const id = params.id
+  const { id } = await params
   const product = await getProductById(id)
   
   if (!product) {

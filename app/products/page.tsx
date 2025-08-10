@@ -38,29 +38,29 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   })
 
   return (
-    <div className="container px-4 py-8 md:px-6 md:py-12">
-      <div className="mb-8 flex flex-col gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">All Products</h1>
+    <div className="container px-4 py-6 md:px-6 md:py-8 lg:py-12">
+      <div className="mb-6 md:mb-8 flex flex-col gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">All Products</h1>
         <SearchBar />
       </div>
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-[240px_1fr]">
-        <div className="hidden md:block">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr] lg:gap-8">
+        <div className="hidden lg:block">
           <div className="sticky top-20">
             <h2 className="mb-4 text-lg font-semibold">Filters</h2>
             <ProductFilters />
           </div>
         </div>
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-500 order-2 sm:order-1">
               Showing {products.length} of {count} products
             </p>
-            <Button variant="outline" size="sm" className="md:hidden">
-              <SlidersHorizontal className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
-            <div className="hidden md:block">
-              <select className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm">
+            <div className="flex gap-2 order-1 sm:order-2">
+              <Button variant="outline" size="sm" className="lg:hidden flex-1 sm:flex-none">
+                <SlidersHorizontal className="mr-2 h-4 w-4" />
+                Filters
+              </Button>
+              <select className="flex-1 sm:flex-none rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm min-w-[140px]">
                 <option>Newest first</option>
                 <option>Price: Low to high</option>
                 <option>Price: High to low</option>

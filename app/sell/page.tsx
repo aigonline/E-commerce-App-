@@ -6,9 +6,16 @@ export default async function SellPage() {
   await requireUser()
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-2xl font-bold">List an Item for Sale</h1>
-      <ProductForm />
+    <div className="container mx-auto px-4 py-6 md:py-8 lg:py-12">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6 md:mb-8 text-center md:text-left">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">List an Item for Sale</h1>
+          <p className="text-gray-600 text-sm md:text-base">
+            Create your listing and start selling to thousands of buyers on BidBay
+          </p>
+        </div>
+        <ProductForm />
+      </div>
     </div>
   )
 }

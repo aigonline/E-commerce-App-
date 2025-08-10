@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 // Mock data for demo purposes when Supabase is not configured
+// Using fixed dates to prevent hydration issues
+const baseDate = new Date('2025-08-10T00:00:00Z').getTime()
 const mockProducts = [
   {
     id: "1",
@@ -18,8 +20,8 @@ const mockProducts = [
     is_buy_now: true,
     condition: "Used - Excellent",
     status: "active",
-    end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 24 * 60 * 60 * 1000).toISOString(),
     views: 156,
     seller: {
       id: "demo",
@@ -36,7 +38,7 @@ const mockProducts = [
     images: [
       {
         id: "1",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -52,8 +54,8 @@ const mockProducts = [
     is_buy_now: true,
     condition: "New",
     status: "active",
-    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 2 * 24 * 60 * 60 * 1000).toISOString(),
     views: 89,
     seller: {
       id: "demo",
@@ -70,7 +72,7 @@ const mockProducts = [
     images: [
       {
         id: "2",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -86,8 +88,8 @@ const mockProducts = [
     is_buy_now: true,
     condition: "New",
     status: "active",
-    end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 3 * 24 * 60 * 60 * 1000).toISOString(),
     views: 67,
     seller: {
       id: "demo",
@@ -104,7 +106,7 @@ const mockProducts = [
     images: [
       {
         id: "3",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -120,8 +122,8 @@ const mockProducts = [
     is_buy_now: true,
     condition: "New",
     status: "active",
-    end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 4 * 24 * 60 * 60 * 1000).toISOString(),
     views: 234,
     seller: {
       id: "demo",
@@ -138,7 +140,7 @@ const mockProducts = [
     images: [
       {
         id: "4",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -154,8 +156,8 @@ const mockProducts = [
     is_buy_now: false,
     condition: "Used - Good",
     status: "active",
-    end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 5 * 24 * 60 * 60 * 1000).toISOString(),
     views: 78,
     seller: {
       id: "demo",
@@ -172,7 +174,7 @@ const mockProducts = [
     images: [
       {
         id: "5",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -188,8 +190,8 @@ const mockProducts = [
     is_buy_now: true,
     condition: "New",
     status: "active",
-    end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 6 * 24 * 60 * 60 * 1000).toISOString(),
     views: 312,
     seller: {
       id: "demo",
@@ -206,7 +208,7 @@ const mockProducts = [
     images: [
       {
         id: "6",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -222,8 +224,8 @@ const mockProducts = [
     is_buy_now: false,
     condition: "New",
     status: "active",
-    end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 3 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 7 * 24 * 60 * 60 * 1000).toISOString(),
     views: 45,
     seller: {
       id: "demo",
@@ -240,7 +242,7 @@ const mockProducts = [
     images: [
       {
         id: "7",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -256,8 +258,8 @@ const mockProducts = [
     is_buy_now: false,
     condition: "Used - Good",
     status: "active",
-    end_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
+    end_date: new Date(baseDate + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(baseDate - 8 * 24 * 60 * 60 * 1000).toISOString(),
     views: 89,
     seller: {
       id: "demo",
@@ -274,7 +276,7 @@ const mockProducts = [
     images: [
       {
         id: "8",
-        url: "/placeholder.svg?height=500&width=500",
+        url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&h=500&fit=crop",
         position: 0,
       },
     ],
@@ -404,7 +406,7 @@ export async function getProducts({
       query = query.order("current_price", { ascending: false })
       break
     case "bids":
-      query = query.eq("is_auction", true).order("bids.count", { ascending: false })
+      query = query.eq("is_auction", true).order("current_price", { ascending: false })
       break
   }
 
@@ -537,6 +539,11 @@ export async function getBidHistory(productId: string) {
 }
 
 export async function getRelatedProducts(currentProductId: string, categoryId: string) {
+  if (!isSupabaseConfigured()) {
+    // Return mock related products for demo
+    return mockProducts.filter(p => p.id !== currentProductId).slice(0, 4)
+  }
+
   const supabase = await createClient()
   if (!supabase) return []
 
@@ -544,8 +551,7 @@ export async function getRelatedProducts(currentProductId: string, categoryId: s
     .from('products')
     .select(`
       *,
-      images:product_images(*),
-      bids(count)
+      images:product_images(*)
     `)
     .eq('category_id', categoryId)
     .neq('id', currentProductId)
@@ -558,7 +564,7 @@ export async function getRelatedProducts(currentProductId: string, categoryId: s
     return []
   }
 
-  return products
+  return products || []
 }
 
 export async function createProduct(data: {

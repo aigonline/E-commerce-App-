@@ -17,7 +17,7 @@ interface Product {
   is_buy_now: boolean
   end_date: string
   images: Array<{ id: string; url: string }>
-  bids: Array<{ count: number }>
+  bids?: Array<{ id: string; amount: number }>
 }
 
 interface RelatedProductsProps {
@@ -98,7 +98,7 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
               <div>
                 <p className="text-lg font-bold">${product.current_price.toFixed(2)}</p>
                 {product.is_auction && (
-                  <p className="text-xs text-gray-500">{product.bids[0]?.count || 0} bids</p>
+                  <p className="text-xs text-gray-500">{product.bids?.length || 0} bids</p>
                 )}
               </div>
               <div className="flex items-center text-xs text-gray-500">

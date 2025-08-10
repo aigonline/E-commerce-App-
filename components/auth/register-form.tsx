@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { createBrowserSupabaseClient, isSupabaseConfigured } from "@/lib/supabase/client"
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -29,7 +29,7 @@ export function RegisterForm() {
         throw new Error("Supabase not configured. This is a demo version.")
       }
 
-      const supabase = createBrowserSupabaseClient()
+      const supabase = createClient()
       if (!supabase) {
         throw new Error("Failed to create Supabase client")
       }

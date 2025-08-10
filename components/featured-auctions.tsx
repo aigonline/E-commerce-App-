@@ -85,33 +85,35 @@ function getTimeLeft(endDate: string): string {
 }
 
 // Mock data for when no auctions are provided
+// Using fixed dates to prevent hydration issues
+const baseDate = new Date('2025-08-10T00:00:00Z').getTime()
 const mockAuctions = [
   {
     id: "1",
     title: "Vintage Polaroid SX-70 Land Camera",
     current_price: 120.5,
-    end_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    images: [{ url: "/placeholder.svg?height=300&width=300" }],
+    end_date: new Date(baseDate + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    images: [{ url: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300&h=300&fit=crop&crop=center" }],
   },
   {
     id: "3",
     title: "Vintage Leather Messenger Bag - Handcrafted Brown Satchel",
     current_price: 89.0,
-    end_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000).toISOString(),
-    images: [{ url: "/placeholder.svg?height=300&width=300" }],
+    end_date: new Date(baseDate + 1 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000).toISOString(),
+    images: [{ url: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop&crop=center" }],
   },
   {
     id: "5",
     title: "Antique Bronze Pocket Watch with Chain - Working Condition",
     current_price: 45.0,
-    end_date: new Date(Date.now() + 12 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
-    images: [{ url: "/placeholder.svg?height=300&width=300" }],
+    end_date: new Date(baseDate + 12 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
+    images: [{ url: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=300&h=300&fit=crop&crop=center" }],
   },
   {
     id: "8",
     title: "Vintage Vinyl Records Collection - 1970s Rock - 20 LPs",
     current_price: 175.0,
-    end_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
-    images: [{ url: "/placeholder.svg?height=300&width=300" }],
+    end_date: new Date(baseDate + 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
+    images: [{ url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&crop=center" }],
   },
 ]

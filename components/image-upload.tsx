@@ -25,9 +25,10 @@ export function ImageUpload({ value, onChange, maxFiles = 10 }: ImageUploadProps
         setError(null)
         const newFiles = acceptedFiles.slice(0, maxFiles - value.length)
         
-        const uploadPromises = newFiles.map(async (file) => {
+        const uploadPromises = newFiles.map(async (file, index) => {
           const fileExt = file.name.split('.').pop()
-          const fileName = `${Math.random()}.${fileExt}`
+          const timestamp = Date.now()
+          const fileName = `${timestamp}-${index}.${fileExt}`
           
           const { error: uploadError, data } = await supabase.storage
             .from('product-images')

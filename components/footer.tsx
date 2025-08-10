@@ -93,8 +93,8 @@ export function Footer() {
             <h3 className="text-lg font-semibold">Newsletter</h3>
             <p className="text-sm text-gray-500">Subscribe to get special offers, free giveaways, and deals.</p>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Input type="email" placeholder="Your email" className="max-w-xs" />
-              <Button className="bg-rose-600 hover:bg-rose-700">Subscribe</Button>
+              <Input type="email" placeholder="Your email" className="flex-1" />
+              <Button className="bg-rose-600 hover:bg-rose-700 w-full sm:w-auto">Subscribe</Button>
             </div>
           </div>
         </div>
